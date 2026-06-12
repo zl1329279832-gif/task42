@@ -24,6 +24,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
 
 		<!-- mvn install:install-file -DgroupId=gn -DartifactId=GNAvatarView -Dversion=v1.0-rc -Dpackaging=jar -Dfile=D:\git\github\springb
 oot-javafx-app-demo\lib\GNAvatarView-1.0-rc.jar
@@ -96,6 +100,33 @@ oot-javafx-app-demo\lib\GNAvatarView-1.0-rc.jar
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>test-only</id>
+			<properties>
+				<java.version>11</java.version>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<source>11</source>
+							<target>11</target>
+							<excludes>
+								<exclude>**/controller/**</exclude>
+								<exclude>**/fx/**</exclude>
+								<exclude>**/config/**</exclude>
+								<exclude>**/SpringFxAppApplication.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<build>
 		<plugins>

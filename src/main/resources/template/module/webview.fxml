@@ -1,40 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.web.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.*?>
+<?import com.jfoenix.controls.*?>
 
-<StackPane id="AnchorPane" minHeight="-Infinity"
-	minWidth="-Infinity" prefHeight="556.0" prefWidth="834.0"
-	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="com.pdai.javafx.app.controller.WebviewController">
-	<children>
-		<WebView fx:id="webView" layoutX="49.0" layoutY="-1.0"
-			minHeight="-Infinity" minWidth="-Infinity" prefHeight="581.0"
-			prefWidth="833.0" AnchorPane.bottomAnchor="-1.0"
-			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="1.0"
-			AnchorPane.topAnchor="-21.0" />
-		<ProgressIndicator fx:id="progressIndicator" maxHeight="37.0"
-			blendMode="EXCLUSION" layoutY="268.0" prefHeight="37.0"
-			prefWidth="600.0" AnchorPane.leftAnchor="0.0"
-			AnchorPane.rightAnchor="0.0">
-			<opaqueInsets>
-				<Insets />
-			</opaqueInsets>
-		</ProgressIndicator>
-	</children>
-	<BorderPane.margin>
-		<Insets bottom="20.0" right="20.0" top="20.0" />
-	</BorderPane.margin>
-	<padding>
-		<Insets top="1.0" />
-	</padding>
-</StackPane>
+<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="556.0" prefWidth="834.0"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pdai.javafx.app.controller.WebviewController">
+
+    <!-- Toolbar -->
+    <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-background-color: #f5f5f5; -fx-border-color: #ddd; -fx-border-width: 0 0 1 0;">
+        <padding><Insets top="4" bottom="4" left="8" right="8"/></padding>
+        <children>
+            <JFXButton fx:id="bookmarkBtn" text="☆" onAction="#onBookmarkClick"
+                       style="-fx-font-size: 18; -fx-min-width: 36; -fx-min-height: 36;"/>
+            <JFXButton fx:id="showBookmarksBtn" text="Bookmarks" onAction="#onShowBookmarks"
+                       style="-fx-font-size: 13;"/>
+            <JFXButton fx:id="showHistoryBtn" text="History" onAction="#onShowHistory"
+                       style="-fx-font-size: 13;"/>
+        </children>
+    </HBox>
+
+    <!-- Main content: WebView + Side Panel -->
+    <HBox VBox.vgrow="ALWAYS">
+        <children>
+            <!-- WebView area -->
+            <StackPane HBox.hgrow="ALWAYS">
+                <children>
+                    <WebView fx:id="webView" minHeight="-Infinity" minWidth="-Infinity"/>
+                    <ProgressIndicator fx:id="progressIndicator" maxHeight="37.0"
+                                       blendMode="EXCLUSION" prefHeight="37.0" prefWidth="600.0">
+                        <opaqueInsets><Insets/></opaqueInsets>
+                    </ProgressIndicator>
+                </children>
+            </StackPane>
+
+            <!-- Side panel (bookmarks / history) -->
+            <VBox fx:id="sidePanel" prefWidth="280.0" visible="false" managed="false"
+                  style="-fx-background-color: #fafafa; -fx-border-color: #ddd; -fx-border-width: 0 0 0 1;">
+                <padding><Insets top="8" bottom="8" left="8" right="8"/></padding>
+                <children>
+                    <!-- Panel header -->
+                    <HBox alignment="CENTER_LEFT" spacing="5.0">
+                        <children>
+                            <Label fx:id="sidePanelTitle" text="Bookmarks"
+                                   style="-fx-font-size: 15; -fx-font-weight: bold;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <JFXButton fx:id="clearHistoryBtn" text="Clear" onAction="#onClearHistory"
+                                       visible="false" managed="false" style="-fx-font-size: 12;"/>
+                            <JFXButton fx:id="closePanelBtn" text="X" onAction="#onClosePanel"
+                                       style="-fx-font-size: 12; -fx-min-width: 28; -fx-min-height: 28;"/>
+                        </children>
+                    </HBox>
+                    <!-- Search field -->
+                    <JFXTextField fx:id="searchField" promptText="Search bookmarks..."
+                                  style="-fx-font-size: 13;">
+                        <VBox.margin><Insets top="5" bottom="5"/></VBox.margin>
+                    </JFXTextField>
+                    <!-- List -->
+                    <ListView fx:id="listView" VBox.vgrow="ALWAYS"/>
+                </children>
+            </VBox>
+        </children>
+    </HBox>
+</VBox>
