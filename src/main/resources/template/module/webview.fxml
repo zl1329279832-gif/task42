@@ -10,31 +10,55 @@
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.layout.StackPane?>
 
-<StackPane id="AnchorPane" minHeight="-Infinity"
-	minWidth="-Infinity" prefHeight="556.0" prefWidth="834.0"
-	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="com.pdai.javafx.app.controller.WebviewController">
-	<children>
-		<WebView fx:id="webView" layoutX="49.0" layoutY="-1.0"
-			minHeight="-Infinity" minWidth="-Infinity" prefHeight="581.0"
-			prefWidth="833.0" AnchorPane.bottomAnchor="-1.0"
-			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="1.0"
-			AnchorPane.topAnchor="-21.0" />
-		<ProgressIndicator fx:id="progressIndicator" maxHeight="37.0"
-			blendMode="EXCLUSION" layoutY="268.0" prefHeight="37.0"
-			prefWidth="600.0" AnchorPane.leftAnchor="0.0"
-			AnchorPane.rightAnchor="0.0">
-			<opaqueInsets>
-				<Insets />
-			</opaqueInsets>
-		</ProgressIndicator>
-	</children>
-	<BorderPane.margin>
-		<Insets bottom="20.0" right="20.0" top="20.0" />
-	</BorderPane.margin>
-	<padding>
-		<Insets top="1.0" />
-	</padding>
-</StackPane>
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pdai.javafx.app.controller.WebviewController"
+      prefHeight="600.0" prefWidth="834.0">
+
+    <!-- Toolbar: URL bar + Bookmark actions -->
+    <HBox spacing="5.0" alignment="CENTER_LEFT" style="-fx-padding: 5;">
+        <children>
+            <Button text="Baidu" onAction="#clickPageBBtn" />
+            <Button text="Bing" onAction="#clickPageABtn" />
+            <TextField fx:id="urlField" promptText="Enter URL..." HBox.hgrow="ALWAYS" prefWidth="400.0" />
+            <Button text="Bookmark" onAction="#onAddBookmark" />
+            <Button text="Delete" onAction="#onDeleteBookmark" />
+            <Button text="Clear History" onAction="#onClearHistory" />
+        </children>
+    </HBox>
+
+    <!-- Main content: WebView + side panel -->
+    <HBox VBox.vgrow="ALWAYS">
+        <children>
+            <!-- WebView area -->
+            <StackPane HBox.hgrow="ALWAYS">
+                <children>
+                    <WebView fx:id="webView" prefHeight="500.0" prefWidth="600.0" />
+                    <ProgressIndicator fx:id="progressIndicator" maxHeight="37.0"
+                        blendMode="EXCLUSION" prefHeight="37.0" prefWidth="600.0">
+                        <opaqueInsets>
+                            <Insets />
+                        </opaqueInsets>
+                    </ProgressIndicator>
+                </children>
+            </StackPane>
+
+            <!-- Side panel: Search + Bookmarks + History -->
+            <VBox prefWidth="230.0" spacing="5.0" style="-fx-padding: 5; -fx-border-color: #ccc; -fx-border-width: 0 0 0 1;">
+                <children>
+                    <!-- Search -->
+                    <Label text="Search Bookmarks:" />
+                    <TextField fx:id="searchField" promptText="Type to search..." />
+
+                    <!-- Bookmark list -->
+                    <Label text="Bookmarks:" />
+                    <ListView fx:id="bookmarkList" VBox.vgrow="ALWAYS" prefHeight="180.0" />
+
+                    <!-- History list -->
+                    <Label text="Recent Visits:" />
+                    <ListView fx:id="historyList" VBox.vgrow="ALWAYS" prefHeight="180.0" />
+                </children>
+            </VBox>
+        </children>
+    </HBox>
+</VBox>
