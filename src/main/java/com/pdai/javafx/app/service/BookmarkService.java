@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -96,9 +98,10 @@ public class BookmarkService {
 
         lock.writeLock().lock();
         try {
-            // Check for duplicate
+            // Check for duplicate (case-insensitive URL comparison)
+            String normalizedUrl = url.trim().toLowerCase();
             for (Bookmark b : bookmarks) {
-                if (b.getUrl().equals(url.trim())) {
+                if (b.getUrl() != null && b.getUrl().toLowerCase().equals(normalizedUrl)) {
                     throw new IllegalArgumentException("Bookmark already exists: " + url);
                 }
             }
@@ -124,7 +127,9 @@ public class BookmarkService {
 
         lock.writeLock().lock();
         try {
-            boolean removed = bookmarks.removeIf(b -> url.trim().equals(b.getUrl()));
+            String normalizedUrl = url.trim().toLowerCase();
+            boolean removed = bookmarks.removeIf(b -> b.getUrl() != null
+                    && b.getUrl().toLowerCase().equals(normalizedUrl));
             if (removed) {
                 save();
                 log.info("Bookmark deleted: {}", url);
@@ -193,6 +198,12 @@ public class BookmarkService {
 
         lock.writeLock().lock();
         try {
+            // Deduplicate: if same URL already in history, remove old entry
+            // (prevents repeated refreshes of the same page from filling up the limit)
+            String normalizedUrl = url.trim().toLowerCase();
+            visitRecords.removeIf(r -> r.getUrl() != null
+                    && r.getUrl().toLowerCase().equals(normalizedUrl));
+
             // Add to the front (most recent first)
             visitRecords.add(0, record);
 
@@ -283,7 +294,9 @@ public class BookmarkService {
     }
 
     /**
-     * Save current data to JSON file. Thread-safe via write lock.
+     * Save current data to JSON file. Uses atomic write (temp file + rename)
+     * to prevent data loss if the process is interrupted mid-write.
+     * Note: caller must already hold writeLock.
      */
     public void save() {
         // Note: caller must already hold writeLock
@@ -296,8 +309,15 @@ public class BookmarkService {
                 }
             }
 
+            // Write to a temp file first, then atomically move to prevent
+            // data loss if the JVM exits or the write is interrupted mid-flush.
+            File tempFile = new File(storageFile.getAbsolutePath() + ".tmp");
             BookmarkData data = new BookmarkData(bookmarks, visitRecords);
-            objectMapper.writeValue(storageFile, data);
+            objectMapper.writeValue(tempFile, data);
+
+            // Use Files.move with REPLACE_EXISTING (works on all platforms;
+            // File.renameTo fails on Windows when the target already exists).
+            Files.move(tempFile.toPath(), storageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             log.error("Failed to save bookmark data to {}", storageFile.getAbsolutePath(), e);
         }

@@ -73,11 +73,11 @@ public class VisitRecord {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         VisitRecord that = (VisitRecord) o;
-        return url != null && url.equals(that.url);
+        return url != null && that.url != null && url.equalsIgnoreCase(that.url);
     }
 
     @Override
     public int hashCode() {
-        return url != null ? url.hashCode() : 0;
+        return url != null ? url.toLowerCase().hashCode() : 0;
     }
 }

@@ -227,13 +227,14 @@ public class BookmarkServiceTest {
     }
 
     @Test
-    public void testRecordVisit_sameUrlAllowed() {
-        // Unlike bookmarks, visiting the same URL multiple times should be allowed
+    public void testRecordVisit_sameUrlDeduplicated() {
+        // Visiting the same URL again should move it to front (not duplicate)
         service.recordVisit("Google", "https://www.google.com");
-        service.recordVisit("Google", "https://www.google.com");
+        service.recordVisit("Google Updated", "https://www.google.com");
 
         List<VisitRecord> all = service.getVisitRecords();
-        assertEquals(2, all.size());
+        assertEquals(1, all.size());
+        assertEquals("Google Updated", all.get(0).getTitle());
     }
 
     @Test

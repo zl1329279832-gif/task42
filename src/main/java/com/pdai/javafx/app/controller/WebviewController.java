@@ -75,7 +75,8 @@ public class WebviewController implements Initializable {
                     if (loadedUrl != null && !loadedUrl.isEmpty()) {
                         try {
                             bookmarkService.recordVisit(loadedTitle, loadedUrl);
-                            refreshHistoryList();
+                            // Ensure UI update happens on the FX application thread
+                            Platform.runLater(this::refreshHistoryList);
                         } catch (IllegalArgumentException e) {
                             // Ignore invalid URLs (e.g., about:blank)
                         }
