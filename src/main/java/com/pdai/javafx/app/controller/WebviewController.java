@@ -55,6 +55,8 @@ public class WebviewController implements Initializable {
 
     private WebEngine webEngine;
 
+    private String lastRecordedUrl;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         webEngine = webView.getEngine();
@@ -73,11 +75,15 @@ public class WebviewController implements Initializable {
                     String loadedUrl = webEngine.getLocation();
                     String loadedTitle = webEngine.getTitle();
                     if (loadedUrl != null && !loadedUrl.isEmpty()) {
-                        try {
-                            bookmarkService.recordVisit(loadedTitle, loadedUrl);
-                            refreshHistoryList();
-                        } catch (IllegalArgumentException e) {
-                            // Ignore invalid URLs (e.g., about:blank)
+                        // Skip recording if the URL hasn't changed (e.g. page refresh)
+                        if (!loadedUrl.equalsIgnoreCase(lastRecordedUrl)) {
+                            try {
+                                bookmarkService.recordVisit(loadedTitle, loadedUrl);
+                                lastRecordedUrl = loadedUrl;
+                                refreshHistoryList();
+                            } catch (IllegalArgumentException e) {
+                                // Ignore invalid URLs (e.g., about:blank)
+                            }
                         }
                     }
                 } else {

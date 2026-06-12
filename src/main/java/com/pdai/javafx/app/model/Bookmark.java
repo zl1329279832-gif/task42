@@ -73,11 +73,11 @@ public class Bookmark {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Bookmark bookmark = (Bookmark) o;
-        return url != null && url.equals(bookmark.url);
+        return url != null && url.equalsIgnoreCase(bookmark.url);
     }
 
     @Override
     public int hashCode() {
-        return url != null ? url.hashCode() : 0;
+        return url != null ? url.toLowerCase().hashCode() : 0;
     }
 }

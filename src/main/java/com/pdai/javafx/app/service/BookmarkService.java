@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -96,9 +98,9 @@ public class BookmarkService {
 
         lock.writeLock().lock();
         try {
-            // Check for duplicate
+            // Check for duplicate (case-insensitive URL comparison)
             for (Bookmark b : bookmarks) {
-                if (b.getUrl().equals(url.trim())) {
+                if (b.getUrl().equalsIgnoreCase(url.trim())) {
                     throw new IllegalArgumentException("Bookmark already exists: " + url);
                 }
             }
@@ -124,7 +126,7 @@ public class BookmarkService {
 
         lock.writeLock().lock();
         try {
-            boolean removed = bookmarks.removeIf(b -> url.trim().equals(b.getUrl()));
+            boolean removed = bookmarks.removeIf(b -> url.trim().equalsIgnoreCase(b.getUrl()));
             if (removed) {
                 save();
                 log.info("Bookmark deleted: {}", url);
@@ -193,6 +195,9 @@ public class BookmarkService {
 
         lock.writeLock().lock();
         try {
+            // Remove existing entry for same URL to prevent duplicates filling up history
+            visitRecords.removeIf(r -> r.getUrl().equalsIgnoreCase(url.trim()));
+
             // Add to the front (most recent first)
             visitRecords.add(0, record);
 
@@ -296,8 +301,13 @@ public class BookmarkService {
                 }
             }
 
+            // Atomic write: write to temp file, then rename to target.
+            // Prevents data loss if the app crashes mid-write.
+            File tempFile = new File(storageFile.getAbsolutePath() + ".tmp");
             BookmarkData data = new BookmarkData(bookmarks, visitRecords);
-            objectMapper.writeValue(storageFile, data);
+            objectMapper.writeValue(tempFile, data);
+            Files.move(tempFile.toPath(), storageFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
             log.error("Failed to save bookmark data to {}", storageFile.getAbsolutePath(), e);
         }

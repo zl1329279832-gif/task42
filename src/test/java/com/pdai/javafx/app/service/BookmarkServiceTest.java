@@ -49,6 +49,11 @@ public class BookmarkServiceTest {
         if (backup.exists()) {
             backup.delete();
         }
+        // Clean up temp file from atomic save if exists
+        File tmp = new File(tempFile.getAbsolutePath() + ".tmp");
+        if (tmp.exists()) {
+            tmp.delete();
+        }
     }
 
     // ==================== Bookmark Tests ====================
@@ -228,12 +233,13 @@ public class BookmarkServiceTest {
 
     @Test
     public void testRecordVisit_sameUrlAllowed() {
-        // Unlike bookmarks, visiting the same URL multiple times should be allowed
+        // Visiting the same URL multiple times should deduplicate:
+        // only the most recent visit is kept
         service.recordVisit("Google", "https://www.google.com");
         service.recordVisit("Google", "https://www.google.com");
 
         List<VisitRecord> all = service.getVisitRecords();
-        assertEquals(2, all.size());
+        assertEquals(1, all.size());
     }
 
     @Test
